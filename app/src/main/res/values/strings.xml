@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">LindaExchangeAdmin</string>
+    <string name="title_item_detail">Item Detail</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="branch_name_label">ชื่อสาขา</string>
+    <string name="branch_address_label">ที่อยู่</string>
+    <string name="branch_contact_number_label">เบอร์โทรศัพท์</string>
+    <string name="branch_opening_time_label">เวลาทำการ</string>
+    <string name="branch_location_label">ตำแหน่ง</string>
+    <string name="branch_image_label">ภาพ</string>
+    <string name="branch_open_map">เปิดแผนที่</string>
+
+    <string name="branch">branch</string>
+    <string name="branch_name">name</string>
+    <string name="branch_address">address</string>
+    <string name="branch_contact_number">contactnumber</string>
+    <string name="branch_location">location</string>
+    <string name="branch_opening_time">openingtime</string>
+    <string name="branch_photo">photo</string>
+
+    <string name="news_topic_label">หัวข้อ</string>
+    <string name="news_detail_label">รายละเอียดข่าว</string>
+    <string name="news_photo_label">ภาพ</string>
+
+    <string name="rate_country_name_label">ชื่อประเทศ</string>
+    <string name="rate_currency_name_label">ชื่อสกุลเงิน</string>
+    <string name="rate_denomination_select_label">เลือกหน่วยเงิน</string>
+    <string name="rate_denomination_name_label">ชื่อหน่วยเงิน</string>
+    <string name="rate_flag_label">Flag</string>
+    <string name="rate_buy_label">อัตราซื้อ</string>
+    <string name="rate_sell_label">อัตราขาย</string>
+    <string name="rate_rate_label">ตั้งค่าหน่วยเงิน</string>
+    <string name="rate_add_denomination">เพิ่มหน่วยเงิน</string>
+
+    <string name="rate">exchangerate</string>
+    <string name="news">news</string>
+
+    <string name="thai">ภาษาไทย</string>
+    <string name="english">ภาษาอังกฤษ</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_maps">Map</string>
+</resources>

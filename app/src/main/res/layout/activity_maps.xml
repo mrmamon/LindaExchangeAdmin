@@ -1,0 +1,36 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lindaexchange.lindaexchangeadmin.MapsActivity">
+
+    <fragment
+        android:id="@+id/map"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+
+    <Button
+        android:id="@+id/getLocationBT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="20dp"
+        android:clickable="false"
+        android:singleLine="false"
+        android:text="เลือกตำแหน่งปัจจุบัน" />
+
+    <Button
+        android:id="@+id/locationServiceAlert"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="20dp"
+        android:enabled="true"
+        android:text="กรุณาเปิดการใช้งานการระบุตำแหน่ง"
+        android:textColor="#FFFFFF"
+        android:visibility="gone" />
+
+</FrameLayout>
