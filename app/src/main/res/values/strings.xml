@@ -39,6 +39,10 @@
     <string name="thai">ภาษาไทย</string>
     <string name="english">ภาษาอังกฤษ</string>
 
+    <string name="delete_confirm_title">ลบข้อมูล</string>
+    <string name="delete_confirm">ต้องการลบข้อมูลนี้หรือไม่</string>
+    <string name="finish">สำเร็จ</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_login">Sign in</string>

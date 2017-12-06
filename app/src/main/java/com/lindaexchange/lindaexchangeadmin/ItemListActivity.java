@@ -98,7 +98,6 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mItem = mValues.get(position);
-//            holder.mIdView.setText(mValues.get(position).id);
             holder.mContentView.setText(mValues.get(position).content);
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -192,8 +191,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     @Override
     public void deleteBranch(final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        builder.setTitle("ลบข้อมูล")
-                .setMessage("ต้องการลบข้อมูลนี้หรือไม่")
+        builder.setTitle(R.string.delete_confirm_title)
+                .setMessage(R.string.delete_confirm)
                 .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -204,7 +203,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                 if (databaseError == null) {
-                                    showAlert("Finished");
+                                    showAlert(getString(R.string.finish));
                                 } else {
                                     showAlert("ERROR!");
                                 }
@@ -258,8 +257,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     @Override
     public void deleteRate(final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        builder.setTitle("ลบข้อมูล")
-                .setMessage("ต้องการลบข้อมูลนี้หรือไม่")
+        builder.setTitle(R.string.delete_confirm_title)
+                .setMessage(R.string.delete_confirm)
                 .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -270,7 +269,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                 if (databaseError == null) {
-                                    showAlert("Finished");
+                                    showAlert(getString(R.string.finish));
                                 } else {
                                     showAlert("ERROR!");
                                 }
@@ -315,8 +314,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     @Override
     public void deleteNews(final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        builder.setTitle("ลบข้อมูล")
-                .setMessage("ต้องการลบข้อมูลนี้หรือไม่")
+        builder.setTitle(R.string.delete_confirm_title)
+                .setMessage(R.string.delete_confirm)
                 .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -327,7 +326,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                 if (databaseError == null) {
-                                    showAlert("Finished");
+                                    showAlert(getString(R.string.finish));
                                 } else {
                                     showAlert("ERROR!");
                                 }
@@ -373,8 +372,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     @Override
     public void deleteDenomination(final int rateIndex, final int denominationIndex) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        builder.setTitle("ลบข้อมูล")
-            .setMessage("ต้องการลบข้อมูลนี้หรือไม่")
+        builder.setTitle(R.string.delete_confirm_title)
+            .setMessage(R.string.delete_confirm)
             .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -386,7 +385,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                         @Override
                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                             if (databaseError == null) {
-                                showAlert("Finished");
+                                showAlert(getString(R.string.finish));
                             } else {
                                 showAlert("ERROR!");
                             }

@@ -38,17 +38,6 @@ public class BranchRecyclerViewAdapter extends RecyclerView.Adapter<BranchRecycl
         BranchDB branch = mValues.get(position).get(0);
         holder.mItem = branch;
         holder.mName.setText(branch.getName());
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.showBranchDetail(position);
-                }
-            }
-        });
     }
 
     @Override
@@ -65,6 +54,25 @@ public class BranchRecyclerViewAdapter extends RecyclerView.Adapter<BranchRecycl
             super(view);
             mView = view;
             mName = (TextView) view.findViewById(R.id.branch_name);
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mListener) {
+                        int position = getLayoutPosition();
+                        mListener.showBranchDetail(position);
+                    }
+                }
+            });
+            mView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (null != mListener) {
+                        int position = getLayoutPosition();
+                        mListener.deleteBranch(position);
+                    }
+                    return true;
+                }
+            });
         }
 
         @Override
