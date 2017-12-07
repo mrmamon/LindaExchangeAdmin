@@ -155,10 +155,15 @@ public class BranchPagerFragment extends Fragment {
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    branchIndex = Integer.parseInt(child.getKey()) + 1;
+                if (!dataSnapshot.hasChildren()) {
+                    branchIndex = 0;
                     saveBranch();
-                    break;
+                } else {
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        branchIndex = Integer.parseInt(child.getKey()) + 1;
+                        saveBranch();
+                        break;
+                    }
                 }
             }
 
@@ -248,7 +253,7 @@ public class BranchPagerFragment extends Fragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
-                    showAlert("Finished");
+                    showAlert(getString(R.string.finish));
                 } else {
                     showAlert("ERROR!");
                 }

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -51,7 +52,6 @@ public class DenominationDetailFragment extends Fragment {
     private DenominationDB denomination;
 
     private EditText denominationNameEditText;
-    private RecyclerView recyclerView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -95,8 +95,6 @@ public class DenominationDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_denomination_detail, container, false);
         denominationNameEditText = (EditText) view.findViewById(R.id.denominationNameEditText);
-        recyclerView = (RecyclerView) view.findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,27 +106,6 @@ public class DenominationDetailFragment extends Fragment {
 
         if (denominationIndex < 0) {
             denomination = new DenominationDB("");
-            String branchString = getString(R.string.branch);
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference ref = database.getReference(branchString);
-            ref.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    GenericTypeIndicator<List<List<BranchDB>>> t = new GenericTypeIndicator<List<List<BranchDB>>>() {};
-                    List<List<BranchDB>> branchList = dataSnapshot.getValue(t);
-                    if (denomination.getDenominationrate().size() < branchList.size()) {
-                        for (int i = denomination.getDenominationrate().size(); i < branchList.size(); i++) {
-                            denomination.getDenominationrate().add(new RateDB("0", "0"));
-                        }
-                    }
-                    recyclerView.setAdapter(new BuySellRecyclerViewAdapter(denomination, branchList, mListener));
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
         } else {
             setDenomination();
         }
@@ -145,29 +122,10 @@ public class DenominationDetailFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DenominationDB denominationDB = dataSnapshot.getValue(DenominationDB.class);
-                denominationNameEditText.setText(denominationDB.getDenominationname());
-                denomination = denominationDB;
-                String branchString = getString(R.string.branch);
-                FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-                DatabaseReference ref = database.getReference(branchString);
-                ref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<List<List<BranchDB>>> t = new GenericTypeIndicator<List<List<BranchDB>>>() {};
-                        List<List<BranchDB>> branchList = dataSnapshot.getValue(t);
-                        if (denomination.getDenominationrate().size() < branchList.size()) {
-                            for (int i = denomination.getDenominationrate().size(); i < branchList.size(); i++) {
-                                denomination.getDenominationrate().add(new RateDB("0", "0"));
-                            }
-                        }
-                        recyclerView.setAdapter(new BuySellRecyclerViewAdapter(denomination, branchList, mListener));
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                if (denominationDB != null) {
+                    denominationNameEditText.setText(denominationDB.getDenominationname());
+                    denomination = denominationDB;
+                }
             }
 
             @Override
@@ -181,17 +139,21 @@ public class DenominationDetailFragment extends Fragment {
         if (denominationIndex == -1) {
             String rateString = getString(R.string.rate);
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference ref = database.getReference(rateString).child(String.valueOf(rateIndex));
+
+            // exchangerate/0/rate/0
+            Query ref = database.getReference(rateString).child(String.valueOf(rateIndex)).child(getString(R.string.rate_rate)).orderByKey().limitToLast(1);
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    ExchangeRateDB rateDB = dataSnapshot.getValue(ExchangeRateDB.class);
-                    if (rateDB.getRate() != null) {
-                        denominationIndex = rateDB.getRate().size();
-                    } else {
+                    if (!dataSnapshot.hasChildren()) {
                         denominationIndex = 0;
+                        saveRate();
                     }
-                    saveRate();
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        denominationIndex = Integer.parseInt(child.getKey()) + 1;
+                        saveRate();
+                        break;
+                    }
                 }
 
                 @Override
@@ -205,20 +167,17 @@ public class DenominationDetailFragment extends Fragment {
     }
 
     private void saveRate() {
-        BuySellRecyclerViewAdapter adapter = (BuySellRecyclerViewAdapter) (recyclerView.getAdapter());
-        Map<String, Object> rateMap = adapter.getMap();
         Map<String, Object> item = new HashMap<>();
-        item.put("denominationname", denominationNameEditText.getText().toString());
-        item.put("denominationrate", rateMap);
+        String refString = String.valueOf(rateIndex) + "/rate/" + String.valueOf(denominationIndex) + "/" + getString(R.string.rate_denominationname);
+        item.put(refString, denominationNameEditText.getText().toString());
         String denominationString = getString(R.string.rate);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        String child = String.valueOf(rateIndex) + "/rate/" + String.valueOf(denominationIndex);
-        DatabaseReference ref = database.getReference(denominationString).child(child);
+        DatabaseReference ref = database.getReference(denominationString);
         ref.updateChildren(item, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
-                    showAlert("Finished");
+                    showAlert(getString(R.string.finish));
                 } else {
                     showAlert("ERROR!");
                 }

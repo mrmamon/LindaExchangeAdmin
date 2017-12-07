@@ -35,6 +35,8 @@
 
     <string name="rate">exchangerate</string>
     <string name="news">news</string>
+    <string name="rate_rate">rate</string>
+    <string name="rate_denominationname">denominationname</string>
 
     <string name="thai">ภาษาไทย</string>
     <string name="english">ภาษาอังกฤษ</string>

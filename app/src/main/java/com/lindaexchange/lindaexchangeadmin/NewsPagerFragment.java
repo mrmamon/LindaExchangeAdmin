@@ -154,10 +154,15 @@ public class NewsPagerFragment extends Fragment {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child: dataSnapshot.getChildren()) {
-                    newsIndex = Integer.parseInt(child.getKey()) + 1;
+                if (!dataSnapshot.hasChildren()) {
+                    newsIndex = 0;
                     saveNews();
-                    break;
+                } else {
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        newsIndex = Integer.parseInt(child.getKey()) + 1;
+                        saveNews();
+                        break;
+                    }
                 }
             }
 
@@ -248,7 +253,7 @@ public class NewsPagerFragment extends Fragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
-                    showAlert("Finished");
+                    showAlert(getString(R.string.finish));
                 } else {
                     showAlert("ERROR!");
                 }

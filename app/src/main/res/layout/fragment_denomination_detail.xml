@@ -35,16 +35,6 @@
                     android:inputType="textMultiLine" />
 
             </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:layout_below="@+id/nameLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                app:layoutManager="LinearLayoutManager"
-                tools:listitem="@layout/buy_sell_item"
-                android:id="@+id/list"/>
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
 

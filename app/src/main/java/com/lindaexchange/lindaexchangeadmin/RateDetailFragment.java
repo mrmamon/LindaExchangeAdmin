@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -152,15 +153,21 @@ public class RateDetailFragment extends Fragment {
     private void addRate() {
         String rateString = getString(R.string.rate);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference(rateString);
+        Query ref = database.getReference(rateString).orderByKey().limitToLast(1);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 //                    rateArray = new ArrayList<ExchangeRateDB>();
-                GenericTypeIndicator<List<ExchangeRateDB>> t = new GenericTypeIndicator<List<ExchangeRateDB>>() {};
-                List<ExchangeRateDB> rateArray = dataSnapshot.getValue(t);
-                rateIndex = rateArray.size();
-                saveRate(true);
+                if (!dataSnapshot.hasChildren()) {
+                    rateIndex = 0;
+                    saveRate(true);
+                } else {
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        rateIndex = Integer.parseInt(child.getKey()) + 1;
+                        saveRate(true);
+                        break;
+                    }
+                }
             }
 
             @Override
@@ -185,7 +192,7 @@ public class RateDetailFragment extends Fragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
-                    showAlert("Finished");
+                    showAlert(getString(R.string.finish));
                     if (isNewRate) {
                         setRate();
                     }
