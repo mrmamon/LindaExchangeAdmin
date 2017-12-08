@@ -1,5 +1,6 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,5 +42,27 @@ public class ExchangeRateDB {
 
     public void setRate(List<DenominationDB> rate) {
         this.rate = rate;
+    }
+
+    public List<RateValueDB> extractRateValue(int branch) {
+        List<RateValueDB> array = new ArrayList<>();
+        int denominationIndex = 0;
+        for (DenominationDB deno : rate) {
+            List<RateDB> rateDBList = deno.getDenominationrate();
+            if (branch < rateDBList.size()) {
+                RateDB rateDB = rateDBList.get(branch);
+                array.add(new RateValueDB(key, countryname, currencyname,
+                        String.valueOf(denominationIndex), deno.getDenominationname(),
+                        String.valueOf(branch),
+                        rateDB.getBuy(), rateDB.getSell()));
+            } else {
+                array.add(new RateValueDB(key, countryname, currencyname,
+                        String.valueOf(denominationIndex), deno.getDenominationname(),
+                        String.valueOf(branch),
+                        "0.00", "0.00"));
+            }
+            denominationIndex += 1;
+        }
+        return array;
     }
 }

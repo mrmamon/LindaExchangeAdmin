@@ -27,9 +27,10 @@ public class DummyContent {
 
     static {
         // Add some sample items.
-        addItem(new DummyItem(String.valueOf(1), "Rate", makeDetails(1)));
-        addItem(new DummyItem(String.valueOf(2), "News", makeDetails(2)));
-        addItem(new DummyItem(String.valueOf(3), "Branch", makeDetails(3)));
+        addItem(new DummyItem(String.valueOf(1), "Rate Detail", makeDetails(1)));
+        addItem(new DummyItem(String.valueOf(2), "Rate Value", makeDetails(2)));
+        addItem(new DummyItem(String.valueOf(3), "News", makeDetails(3)));
+        addItem(new DummyItem(String.valueOf(4), "Branch", makeDetails(4)));
     }
 
     private static void addItem(DummyItem item) {

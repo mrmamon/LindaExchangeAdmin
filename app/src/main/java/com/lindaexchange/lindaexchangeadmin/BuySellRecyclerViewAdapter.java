@@ -19,13 +19,13 @@ import java.util.Map;
  */
 
 public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecyclerViewAdapter.ViewHolder> {
-    private DenominationDB denomination;
-    private List<List<BranchDB>> branchList;
-    private DenominationDetailFragment.OnFragmentInteractionListener mListener;
+    private List<RateValueDB> rateList;
+    private int branchIndex;
+    private RateValueUpdateFragment.OnFragmentInteractionListener mListener;
 
-    public BuySellRecyclerViewAdapter(DenominationDB denomination, List<List<BranchDB>> branchList, DenominationDetailFragment.OnFragmentInteractionListener listener) {
-        this.denomination = denomination;
-        this.branchList = branchList;
+    public BuySellRecyclerViewAdapter(List<RateValueDB> rateList, int branchIndex, RateValueUpdateFragment.OnFragmentInteractionListener listener) {
+        this.rateList = rateList;
+        this.branchIndex = branchIndex;
         this.mListener = listener;
     }
 
@@ -38,14 +38,12 @@ public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecy
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        BranchDB branchDB = branchList.get(position).get(0);
-        holder.branchDB = branchDB;
-        holder.branchName.setText(branchDB.getName());
-        if (denomination.getDenominationrate().size() > position) {
-            RateDB rateDB = denomination.getDenominationrate().get(position);
-            holder.rateDB = rateDB;
-            holder.buyEditText.setText(rateDB.getBuy());
-            holder.sellEditText.setText(rateDB.getSell());
+        if (rateList.size() > position) {
+            RateValueDB exchangeRate = rateList.get(position);
+            holder.branchName.setText(exchangeRate.getCurrencyname() + " " + exchangeRate.getDenominationname());
+            holder.rateDB = exchangeRate;
+            holder.buyEditText.setText(exchangeRate.getBuy());
+            holder.sellEditText.setText(exchangeRate.getSell());
         } else {
 
         }
@@ -57,11 +55,8 @@ public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecy
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (denomination.getDenominationrate().size() > position) {
-                    denomination.getDenominationrate().get(position).setBuy(s.toString());
-                } else {
-                    RateDB rate = new RateDB(s.toString(), "0");
-                    denomination.getDenominationrate().add(rate);
+                if (rateList.size() > position) {
+                    rateList.get(position).setBuy(s.toString());
                 }
             }
 
@@ -78,11 +73,8 @@ public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecy
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (denomination.getDenominationrate().size() > position) {
-                    denomination.getDenominationrate().get(position).setSell(s.toString());
-                } else {
-                    RateDB rate = new RateDB(s.toString(), "0");
-                    denomination.getDenominationrate().add(rate);
+                if (rateList.size() > position) {
+                    rateList.get(position).setSell(s.toString());
                 }
             }
 
@@ -94,18 +86,13 @@ public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecy
 
     @Override
     public int getItemCount() {
-        int branchSize = branchList.size();
-//        int rateSize = denomination.getDenominationrate().size();
-        return branchSize;
+        return rateList.size();
     }
 
     public Map<String, Object> getMap() {
         Map<String, Object> denominationRate = new HashMap<>();
-        for (int i = 0; i < branchList.size(); i++) {
-            Map<String, Object> rate = new HashMap<>();
-            rate.put("buy", denomination.getDenominationrate().get(i).getBuy());
-            rate.put("sell", denomination.getDenominationrate().get(i).getSell());
-            denominationRate.put(String.valueOf(i), rate);
+        for (RateValueDB rate : rateList) {
+            denominationRate.putAll(rate.getMap());
         }
         return denominationRate;
     }
@@ -115,8 +102,7 @@ public class BuySellRecyclerViewAdapter extends RecyclerView.Adapter<BuySellRecy
         public TextView branchName;
         public EditText buyEditText;
         public EditText sellEditText;
-        public BranchDB branchDB;
-        public RateDB rateDB;
+        public RateValueDB rateDB;
 
         public ViewHolder(View view) {
             super(view);

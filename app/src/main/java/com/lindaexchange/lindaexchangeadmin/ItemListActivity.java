@@ -36,7 +36,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         BranchDetailFragment.OnFragmentInteractionListener, RateFragment.OnListFragmentInteractionListener,
         NewsFragment.OnListFragmentInteractionListener, NewsDetailFragment.OnFragmentInteractionListener,
         RateDetailFragment.OnFragmentInteractionListener, DenominationDetailFragment.OnFragmentInteractionListener,
-        NewsPagerFragment.OnFragmentInteractionListener, BranchPagerFragment.OnFragmentInteractionListener {
+        NewsPagerFragment.OnFragmentInteractionListener, BranchPagerFragment.OnFragmentInteractionListener,
+        RateForEachBranchFragment.OnListFragmentInteractionListener, RateValueUpdateFragment.OnFragmentInteractionListener {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -110,11 +111,16 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                                     .replace(R.id.item_detail_container, fragment)
                                     .commit();
                         } else if (holder.mItem.id.equals("2")) {
-                            NewsFragment fragment = new NewsFragment();
+                            RateForEachBranchFragment fragment = new RateForEachBranchFragment();
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.item_detail_container, fragment)
                                     .commit();
                         } else if (holder.mItem.id.equals("3")) {
+                            NewsFragment fragment = new NewsFragment();
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.item_detail_container, fragment)
+                                    .commit();
+                        } else if (holder.mItem.id.equals("4")) {
                             BranchFragment fragment = new BranchFragment();
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.item_detail_container, fragment)
@@ -285,6 +291,18 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    @Override
+    public void showRateValueUpdate(int branchIndex) {
+        Bundle arguments = new Bundle();
+        arguments.putInt("branchIndex", branchIndex);
+        RateValueUpdateFragment fragment = new RateValueUpdateFragment();
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.item_detail_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
