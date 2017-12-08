@@ -9,8 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,10 +47,12 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+//        getWindow().setStatusBarColor(getResources().getColor(R.color.buttonBackgroundColor, null));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+        toolbar.setBackgroundColor(getResources().getColor(R.color.buttonBackgroundColor, null));
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +84,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final List<DummyContent.DummyItem> mValues;
+        private int selectedPos = -1;
 
         public SimpleItemRecyclerViewAdapter(List<DummyContent.DummyItem> items) {
             mValues = items;
@@ -97,13 +98,23 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.mItem = mValues.get(position);
             holder.mContentView.setText(mValues.get(position).content);
+            holder.mView.setSelected(selectedPos == position);
+            holder.mContentView.setPressed(selectedPos == position);
+            if (selectedPos == position) {
+                holder.mContentView.setTextColor(getColor(R.color.buttonTextColorSelected));
+            } else {
+                holder.mContentView.setTextColor(getColor(R.color.buttonTextColorDefault));
+            }
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    notifyItemChanged(selectedPos);
+                    selectedPos = position;
+                    notifyItemChanged(selectedPos);
                     if (mTwoPane) {
                         if (holder.mItem.id.equals("1")) {
                             RateFragment fragment = new RateFragment();
@@ -143,6 +154,8 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                     }
                 }
             });
+//            holder.mView.setBackgroundResource(R.drawable.button_background);
+//            holder.mContentView.setTextColor(getResources().getColorStateList(R.color.main_button_text, null));
         }
 
         @Override
