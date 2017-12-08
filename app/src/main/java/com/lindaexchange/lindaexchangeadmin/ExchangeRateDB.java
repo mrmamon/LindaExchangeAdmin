@@ -49,7 +49,7 @@ public class ExchangeRateDB {
         int denominationIndex = 0;
         for (DenominationDB deno : rate) {
             List<RateDB> rateDBList = deno.getDenominationrate();
-            if (branch < rateDBList.size()) {
+            if (rateDBList != null && branch < rateDBList.size()) {
                 RateDB rateDB = rateDBList.get(branch);
                 array.add(new RateValueDB(key, countryname, currencyname,
                         String.valueOf(denominationIndex), deno.getDenominationname(),

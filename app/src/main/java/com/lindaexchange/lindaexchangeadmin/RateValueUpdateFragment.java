@@ -1,13 +1,23 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -18,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -39,6 +50,16 @@ public class RateValueUpdateFragment extends Fragment {
     private String mParam2;
     private int branchIndex;
     private RecyclerView recyclerView;
+    private BuySellRecyclerViewAdapter adapter;
+    private ProgressBar mProgressView;
+
+    private CountDownTimer timer = new CountDownTimer(10000, 10000) {
+        @Override
+        public void onTick(long millisUntilFinished) { }
+
+        @Override
+        public void onFinish() { showTimeoutSnackbar(); }
+    };
 
     private OnFragmentInteractionListener mListener;
 
@@ -78,31 +99,84 @@ public class RateValueUpdateFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_rate_value_update, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
 
+        showProgress(true);
         String rateString = getString(R.string.rate);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(rateString);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<List<ExchangeRateDB>> t = new GenericTypeIndicator<List<ExchangeRateDB>>() {};
-                List<ExchangeRateDB> rateDBList = dataSnapshot.getValue(t);
+//                GenericTypeIndicator<List<ExchangeRateDB>> t = new GenericTypeIndicator<List<ExchangeRateDB>>() {};
+//                List<ExchangeRateDB> rateDBList = dataSnapshot.getValue(t);
                 List<RateValueDB> rateValueList = new ArrayList<>();
-                for (ExchangeRateDB rate : rateDBList) {
-                    rateValueList.addAll(rate.extractRateValue(branchIndex));
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    ExchangeRateDB rateDB = child.getValue(ExchangeRateDB.class);
+                    rateDB.setKey(child.getKey());
+                    rateValueList.addAll(rateDB.extractRateValue(branchIndex));
                 }
-                BuySellRecyclerViewAdapter adapter = new BuySellRecyclerViewAdapter(rateValueList, branchIndex, mListener);
+//                for (ExchangeRateDB rate : rateDBList) {
+//                    rateValueList.addAll(rate.extractRateValue(branchIndex));
+//                }
+                adapter = new BuySellRecyclerViewAdapter(rateValueList, branchIndex, mListener);
                 recyclerView.setAdapter(adapter);
+                showProgress(false);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showProgress(false);
+                showTimeoutSnackbar();
+            }
+        });
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveRate();
             }
         });
         return view;
+    }
+
+    private void saveRate() {
+        showProgress(true);
+        Map<String, Object> map = adapter.getMap();
+        Log.d("123", "saveRate: " + map.toString());
+        String rateString = getString(R.string.rate);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(rateString);
+        ref.updateChildren(map, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError == null) {
+                    showAlert(getString(R.string.finish));
+                } else {
+                    showAlert("ERROR!");
+                }
+                showProgress(false);
+            }
+        });
+    }
+
+    private void showAlert(String title) {
+//        showProgress(false);
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+            builder.setTitle(title)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue
+                        }
+                    })
+                    .show();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -129,6 +203,18 @@ public class RateValueUpdateFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -142,5 +228,43 @@ public class RateValueUpdateFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
 //        void onFragmentInteraction(Uri uri);
+    }
+
+    private void showProgress(final boolean show) {
+        if (show) {
+            timer.start();
+        } else {
+            timer.cancel();
+        }
+
+        int shortAnimTime = 200;
+        try {
+            shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
+        recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        recyclerView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    private void showTimeoutSnackbar() {
+        Snackbar snackbar = Snackbar.make(recyclerView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }
