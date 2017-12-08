@@ -1,11 +1,15 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -13,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,6 +56,18 @@ public class BranchPagerFragment extends Fragment {
     private String mParam2;
     private int branchIndex;
     private BranchPagerAdapter adapter;
+
+    private View mContentView;
+    private ProgressBar mProgressView;
+    private FloatingActionButton fab;
+
+    private CountDownTimer timer = new CountDownTimer(10000, 10000) {
+        @Override
+        public void onTick(long millisUntilFinished) { }
+
+        @Override
+        public void onFinish() { showTimeoutSnackbar(); }
+    };
 
     private OnFragmentInteractionListener mListener;
 
@@ -91,6 +108,8 @@ public class BranchPagerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_branch_pager, container, false);
+        mContentView = view.findViewById(R.id.content);
+        mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
         TabLayout tab = (TabLayout) view.findViewById(R.id.branchTab);
         tab.addTab(tab.newTab().setText(R.string.thai));
         tab.addTab(tab.newTab().setText(R.string.english));
@@ -129,7 +148,7 @@ public class BranchPagerFragment extends Fragment {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         if (branchIndex < 0) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -149,12 +168,14 @@ public class BranchPagerFragment extends Fragment {
     }
 
     private void addBranch() {
+        showProgress(true);
         String branchString = getString(R.string.branch);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query reference = database.getReference(branchString).orderByKey().limitToLast(1);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                showProgress(false);
                 if (!dataSnapshot.hasChildren()) {
                     branchIndex = 0;
                     saveBranch();
@@ -169,7 +190,8 @@ public class BranchPagerFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showProgress(false);
+                showAlert("ERROR!");
             }
         });
     }
@@ -190,6 +212,7 @@ public class BranchPagerFragment extends Fragment {
     }
 
     private void uploadThaiImage(Uri thUri, final Uri enUri, final Map<String, Object> thMap, final Map<String, Object> enMap) {
+        showProgress(true);
         String fileName = String.valueOf(branchIndex) + "_0.jpg";
         StorageReference ref = FirebaseStorage.getInstance().getReference(getString(R.string.news)).child(fileName);
         UploadTask uploadTask;
@@ -197,6 +220,7 @@ public class BranchPagerFragment extends Fragment {
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                showProgress(false);
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     thMap.put("photo", ref);
@@ -206,6 +230,8 @@ public class BranchPagerFragment extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                showProgress(false);
+                showAlert("การอัพโหลดภาพล้มเหลว!");
                 prepareToUploadEnglishImage(enUri, thMap, enMap);
             }
         });
@@ -220,6 +246,7 @@ public class BranchPagerFragment extends Fragment {
     }
 
     private void uploadEnglishImage(Uri enUri, final Map<String, Object> thMap, final Map<String, Object> enMap) {
+        showProgress(true);
         String fileName = String.valueOf(branchIndex) + "_1.jpg";
         StorageReference ref = FirebaseStorage.getInstance().getReference(getString(R.string.news)).child(fileName);
         UploadTask uploadTask;
@@ -227,6 +254,7 @@ public class BranchPagerFragment extends Fragment {
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                showProgress(false);
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     enMap.put("photo", ref);
@@ -236,12 +264,15 @@ public class BranchPagerFragment extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                showProgress(false);
+                showAlert("การอัพโหลดภาพล้มเหลว!");
                 updateBranch(thMap, enMap);
             }
         });
     }
 
     private void updateBranch(Map<String, Object> thMap, Map<String, Object> enMap) {
+        showProgress(true);
         String refString = getString(R.string.branch) + "/" + String.valueOf(branchIndex) + "/";
         Map<String, Object> map = new HashMap<>();
         map.put(refString + "0", thMap);
@@ -252,6 +283,7 @@ public class BranchPagerFragment extends Fragment {
         ref.updateChildren(map, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                showProgress(false);
                 if (databaseError == null) {
                     showAlert(getString(R.string.finish));
                 } else {
@@ -314,5 +346,52 @@ public class BranchPagerFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
 //        void onFragmentInteraction(Uri uri);
+    }
+
+    private void showProgress(final boolean show) {
+        if (show) {
+            timer.start();
+        } else {
+            timer.cancel();
+        }
+
+        int shortAnimTime = 200;
+        try {
+            shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
+        mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mContentView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        fab.setVisibility(show ? View.GONE : View.VISIBLE);
+        fab.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fab.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    private void showTimeoutSnackbar() {
+        Snackbar snackbar = Snackbar.make(mContentView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }

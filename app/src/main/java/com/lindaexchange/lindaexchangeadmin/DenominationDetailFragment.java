@@ -1,10 +1,14 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,6 +57,17 @@ public class DenominationDetailFragment extends Fragment {
     private DenominationDB denomination;
 
     private EditText denominationNameEditText;
+    private View mContentView;
+    private ProgressBar mProgressView;
+    private FloatingActionButton fab;
+
+    private CountDownTimer timer = new CountDownTimer(10000, 10000) {
+        @Override
+        public void onTick(long millisUntilFinished) { }
+
+        @Override
+        public void onFinish() { showTimeoutSnackbar(); }
+    };
 
     private OnFragmentInteractionListener mListener;
 
@@ -96,13 +112,16 @@ public class DenominationDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_denomination_detail, container, false);
         denominationNameEditText = (EditText) view.findViewById(R.id.denominationNameEditText);
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveClicked();
             }
         });
+
+        mContentView = view.findViewById(R.id.content);
+        mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
 
         if (denominationIndex < 0) {
             denomination = new DenominationDB("");
@@ -114,6 +133,7 @@ public class DenominationDetailFragment extends Fragment {
     }
 
     private void setDenomination() {
+        showProgress(true);
         String denominationString = getString(R.string.rate);
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         String child = String.valueOf(rateIndex) + "/rate/" + String.valueOf(denominationIndex);
@@ -126,17 +146,20 @@ public class DenominationDetailFragment extends Fragment {
                     denominationNameEditText.setText(denominationDB.getDenominationname());
                     denomination = denominationDB;
                 }
+                showProgress(false);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showProgress(false);
+                showAlert("ERROR!");
             }
         });
     }
 
     private void saveClicked() {
         if (denominationIndex == -1) {
+            showProgress(true);
             String rateString = getString(R.string.rate);
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
@@ -145,6 +168,7 @@ public class DenominationDetailFragment extends Fragment {
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    showProgress(false);
                     if (!dataSnapshot.hasChildren()) {
                         denominationIndex = 0;
                         saveRate();
@@ -158,7 +182,8 @@ public class DenominationDetailFragment extends Fragment {
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    showProgress(false);
+                    showAlert("ERROR!");
                 }
             });
         } else if (denominationIndex >= 0) {
@@ -167,6 +192,7 @@ public class DenominationDetailFragment extends Fragment {
     }
 
     private void saveRate() {
+        showProgress(true);
         Map<String, Object> item = new HashMap<>();
         String refString = String.valueOf(rateIndex) + "/rate/" + String.valueOf(denominationIndex) + "/" + getString(R.string.rate_denominationname);
         item.put(refString, denominationNameEditText.getText().toString());
@@ -176,6 +202,7 @@ public class DenominationDetailFragment extends Fragment {
         ref.updateChildren(item, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                showProgress(false);
                 if (databaseError == null) {
                     showAlert(getString(R.string.finish));
                 } else {
@@ -238,5 +265,52 @@ public class DenominationDetailFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
 //        void onFragmentInteraction(Uri uri);
+    }
+
+    private void showProgress(final boolean show) {
+        if (show) {
+            timer.start();
+        } else {
+            timer.cancel();
+        }
+
+        int shortAnimTime = 200;
+        try {
+            shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
+        mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mContentView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        fab.setVisibility(show ? View.GONE : View.VISIBLE);
+        fab.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fab.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    private void showTimeoutSnackbar() {
+        Snackbar snackbar = Snackbar.make(mContentView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }

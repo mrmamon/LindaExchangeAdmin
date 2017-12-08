@@ -52,6 +52,7 @@ public class RateValueUpdateFragment extends Fragment {
     private RecyclerView recyclerView;
     private BuySellRecyclerViewAdapter adapter;
     private ProgressBar mProgressView;
+    private FloatingActionButton fab;
 
     private CountDownTimer timer = new CountDownTimer(10000, 10000) {
         @Override
@@ -130,10 +131,10 @@ public class RateValueUpdateFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 showProgress(false);
-                showTimeoutSnackbar();
+                showAlert("ERROR!");
             }
         });
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,7 +165,6 @@ public class RateValueUpdateFragment extends Fragment {
     }
 
     private void showAlert(String title) {
-//        showProgress(false);
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
             builder.setTitle(title)
@@ -250,6 +250,15 @@ public class RateValueUpdateFragment extends Fragment {
             @Override
             public void onAnimationEnd(Animator animation) {
                 recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        fab.setVisibility(show ? View.GONE : View.VISIBLE);
+        fab.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fab.setVisibility(show ? View.GONE : View.VISIBLE);
             }
         });
 

@@ -1,5 +1,7 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,8 +10,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -21,6 +25,7 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -74,6 +79,17 @@ public class BranchDetailFragment extends Fragment {
 
     private Button imageSelectButton;
     private ImageView imageView;
+
+    private ProgressBar mProgressView;
+    private View mContentView;
+
+    private CountDownTimer timer = new CountDownTimer(10000, 10000) {
+        @Override
+        public void onTick(long millisUntilFinished) { }
+
+        @Override
+        public void onFinish() { showTimeoutSnackbar(); }
+    };
 
     private Bitmap imageBitmap;
     private boolean imageFromUri = false;
@@ -133,6 +149,9 @@ public class BranchDetailFragment extends Fragment {
             }
         });
 
+        mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
+        mContentView = view.findViewById(R.id.content);
+
         Button openMapButton = (Button) view.findViewById(R.id.map_button);
         openMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,6 +178,7 @@ public class BranchDetailFragment extends Fragment {
     }
 
     private void setBranch() {
+        showProgress(true);
         String branchRefString = getString(R.string.branch);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference branchRef = database.getReference(branchRefString).child(String.valueOf(branchIndex));
@@ -193,11 +213,13 @@ public class BranchDetailFragment extends Fragment {
                         });
                     }
                 }
+                showProgress(false);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showProgress(false);
+                showAlert("ERROR!");
             }
         });
     }
@@ -332,5 +354,58 @@ public class BranchDetailFragment extends Fragment {
         } else if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             gotLatLng(data);
         }
+    }
+
+    private void showAlert(String title) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_Material_Dialog_Alert);
+            builder.setTitle(title)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue
+                        }
+                    })
+                    .show();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showProgress(final boolean show) {
+        if (show) {
+            timer.start();
+        } else {
+            timer.cancel();
+        }
+
+        int shortAnimTime = 200;
+        try {
+            shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
+        mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mContentView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    private void showTimeoutSnackbar() {
+        Snackbar snackbar = Snackbar.make(mContentView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }

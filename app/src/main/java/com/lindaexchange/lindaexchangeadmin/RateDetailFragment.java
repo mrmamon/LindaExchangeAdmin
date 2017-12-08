@@ -1,10 +1,14 @@
 package com.lindaexchange.lindaexchangeadmin;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -54,6 +59,18 @@ public class RateDetailFragment extends Fragment {
     private EditText countryNameEditText;
     private EditText currencyNameEditText;
     private EditText flagEditText;
+
+    private ProgressBar mProgressView;
+    private View mContentView;
+    private FloatingActionButton fab;
+
+    private CountDownTimer timer = new CountDownTimer(10000, 10000) {
+        @Override
+        public void onTick(long millisUntilFinished) { }
+
+        @Override
+        public void onFinish() { showTimeoutSnackbar(); }
+    };
 
     private OnFragmentInteractionListener mListener;
 
@@ -100,7 +117,9 @@ public class RateDetailFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        mContentView = view.findViewById(R.id.content);
+        mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
 
         if (rateIndex < 0) {        // New Rate
             fab.setOnClickListener(new View.OnClickListener() {
@@ -123,6 +142,7 @@ public class RateDetailFragment extends Fragment {
     }
 
     private void setRate() {
+        showProgress(true);
         String rateString = getString(R.string.rate);
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(rateString).child(String.valueOf(rateIndex));
@@ -141,16 +161,19 @@ public class RateDetailFragment extends Fragment {
                         recyclerView.setAdapter(new DenominationRecyclerViewAdapter(new ArrayList<DenominationDB>(), rateIndex, mListener));
                     }
                 }
+                showProgress(false);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showProgress(false);
+                showAlert("ERROR!");
             }
         });
     }
 
     private void addRate() {
+        showProgress(true);
         String rateString = getString(R.string.rate);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query ref = database.getReference(rateString).orderByKey().limitToLast(1);
@@ -178,6 +201,7 @@ public class RateDetailFragment extends Fragment {
     }
 
     private void saveRate(final boolean isNewRate) {
+        showProgress(true);
         String countryName = countryNameEditText.getText().toString();
         String currencyName = currencyNameEditText.getText().toString();
         String flagUrl = flagEditText.getText().toString();
@@ -192,11 +216,13 @@ public class RateDetailFragment extends Fragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError == null) {
+                    showProgress(false);
                     showAlert(getString(R.string.finish));
                     if (isNewRate) {
                         setRate();
                     }
                 } else {
+                    showProgress(false);
                     showAlert("ERROR!");
                 }
             }
@@ -258,5 +284,52 @@ public class RateDetailFragment extends Fragment {
 //        void onFragmentInteraction(Uri uri);
         void showDenominationDetail(int rateIndex, int denominationIndex);
         void deleteDenomination(int rateIndex, int denominationIndex);
+    }
+
+    private void showProgress(final boolean show) {
+        if (show) {
+            timer.start();
+        } else {
+            timer.cancel();
+        }
+
+        int shortAnimTime = 200;
+        try {
+            shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
+        mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mContentView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mContentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        fab.setVisibility(show ? View.GONE : View.VISIBLE);
+        fab.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fab.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    private void showTimeoutSnackbar() {
+        Snackbar snackbar = Snackbar.make(recyclerView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 }

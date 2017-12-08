@@ -4,7 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.lindaexchange.lindaexchangeadmin.NewsPagerFragment">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <RelativeLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <android.support.design.widget.TabLayout
