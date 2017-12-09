@@ -104,6 +104,13 @@ public class RateValueUpdateFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_rate_value_update, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
         mProgressView = (ProgressBar) view.findViewById(R.id.progressBar);
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveRate();
+            }
+        });
 
         showProgress(true);
         String rateString = getString(R.string.rate);
@@ -132,13 +139,6 @@ public class RateValueUpdateFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
                 showProgress(false);
                 showAlert("ERROR!");
-            }
-        });
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveRate();
             }
         });
         return view;

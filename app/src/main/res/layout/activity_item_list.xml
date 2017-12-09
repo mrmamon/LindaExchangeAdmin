@@ -21,13 +21,33 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/item_list" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include layout="@layout/item_list" />
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/logout_button"
+            android:text="@string/logout"
+            android:layout_width="@dimen/item_width"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:gravity="start"
+            android:layout_marginBottom="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="32dp"
+            android:paddingStart="32dp"
+            android:paddingBottom="16dp"
+            android:layout_alignParentBottom="true"/>
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

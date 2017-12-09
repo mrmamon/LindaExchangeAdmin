@@ -3,6 +3,7 @@ package com.lindaexchange.lindaexchangeadmin;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -12,9 +13,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,6 +45,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
      * device.
      */
     private boolean mTwoPane;
+    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,16 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
             // activity should be in two-pane mode.
             mTwoPane = true;
         }
+
+        logoutButton = (Button) findViewById(R.id.logout_button);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logoutButton.setSelected(true);
+                logoutButton.setTextColor(Color.WHITE);
+                signOut();
+            }
+        });
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -181,6 +195,35 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                 return super.toString() + " '" + mContentView.getText() + "'";
             }
         }
+    }
+
+    private void signOut() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                logoutButton.setSelected(false);
+            }
+        });
+        builder.setTitle(getString(R.string.logout_title))
+                .setMessage(getString(R.string.logout_detail))
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        logoutButton.setSelected(false);
+                        logoutButton.setTextColor(Color.BLACK);
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        auth.signOut();
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        logoutButton.setSelected(false);
+                        logoutButton.setTextColor(Color.BLACK);
+                    }
+                })
+                .show();
     }
 
     @Override

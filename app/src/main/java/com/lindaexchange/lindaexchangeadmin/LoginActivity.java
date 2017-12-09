@@ -224,6 +224,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         showMain();
+                    } else {
+                        showProgress(false);
+                        mPasswordView.setError(getString(R.string.login_error));
+                        mPasswordView.requestFocus();
                     }
                 }
             });
