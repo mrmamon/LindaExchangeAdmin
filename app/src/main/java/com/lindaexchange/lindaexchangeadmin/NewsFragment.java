@@ -160,7 +160,7 @@ public class NewsFragment extends Fragment {
         // TODO: Update argument type and name
         void showNewsDetail(int index);
         void showNewsAdd();
-        void deleteNews(int index);
+        void deleteNews(int index, String newsTopic);
     }
 
     private void showAlert(String title) {

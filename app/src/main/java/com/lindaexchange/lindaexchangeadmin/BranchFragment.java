@@ -168,7 +168,7 @@ public class BranchFragment extends Fragment {
         // TODO: Update argument type and name
         void showBranchDetail(int index);
         void showBranchAdd();
-        void deleteBranch(int index);
+        void deleteBranch(int index, String branchName);
     }
 
     private void showAlert(String title) {

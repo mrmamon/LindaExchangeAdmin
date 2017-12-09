@@ -163,7 +163,7 @@ public class RateFragment extends Fragment {
 //        void onListFragmentInteraction(ExchangeRateDB item);
         void showRateDetail(int index);
         void showRateAdd();
-        void deleteRate(int index);
+        void deleteRate(int index, String rateName);
     }
 
     private void showAlert(String title) {

@@ -71,7 +71,7 @@ public class MyNewsRecyclerViewAdapter extends RecyclerView.Adapter<MyNewsRecycl
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
                         int position = getLayoutPosition();
-                        mListener.deleteNews(position);
+                        mListener.deleteNews(position, mValues.get(position).get(0).getTopic());
                     }
                     return true;
                 }

@@ -224,8 +224,8 @@ public class BranchPagerFragment extends Fragment {
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     thMap.put("photo", ref);
-                    prepareToUploadEnglishImage(enUri, thMap, enMap);
                 }
+                prepareToUploadEnglishImage(enUri, thMap, enMap);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -258,8 +258,8 @@ public class BranchPagerFragment extends Fragment {
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     enMap.put("photo", ref);
-                    updateBranch(thMap, enMap);
                 }
+                updateBranch(thMap, enMap);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

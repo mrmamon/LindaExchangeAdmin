@@ -71,7 +71,7 @@ public class MyRateRecyclerViewAdapter extends RecyclerView.Adapter<MyRateRecycl
                     if (null != mListener) {
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
-                        mListener.deleteRate(position);
+                        mListener.deleteRate(position, mValues.get(position).getCurrencyname());
                     }
                     return true;
                 }

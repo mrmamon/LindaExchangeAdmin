@@ -251,10 +251,10 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     }
 
     @Override
-    public void deleteBranch(final int index) {
+    public void deleteBranch(final int index, String branchName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle(R.string.delete_confirm_title)
-                .setMessage(R.string.delete_confirm)
+                .setMessage(getString(R.string.branch_delete_confirm_format, branchName))
                 .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -317,11 +317,11 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     }
 
     @Override
-    public void deleteRate(final int index) {
+    public void deleteRate(final int index, String rateName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle(R.string.delete_confirm_title)
-                .setMessage(R.string.delete_confirm)
-                .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
+                .setMessage(getString(R.string.rate_delete_confirm_format, rateName))
+                .setPositiveButton(getString(R.string.delete_confirm_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String rateString = getString(R.string.rate);
@@ -339,7 +339,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                         });
                     }
                 })
-                .setNegativeButton("ไม่ใช่", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.delete_confirm_no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -386,10 +386,10 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     }
 
     @Override
-    public void deleteNews(final int index) {
+    public void deleteNews(final int index, String newsTopic) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle(R.string.delete_confirm_title)
-                .setMessage(R.string.delete_confirm)
+                .setMessage(getString(R.string.news_delete_confirm_format, newsTopic))
                 .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -444,10 +444,10 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
     }
 
     @Override
-    public void deleteDenomination(final int rateIndex, final int denominationIndex) {
+    public void deleteDenomination(final int rateIndex, final int denominationIndex, String denominationName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle(R.string.delete_confirm_title)
-            .setMessage(R.string.delete_confirm)
+            .setMessage(getString(R.string.rate_denomination_delete_confirm_format, denominationName))
             .setPositiveButton("ใช่", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

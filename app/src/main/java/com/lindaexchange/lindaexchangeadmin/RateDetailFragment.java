@@ -2,23 +2,36 @@ package com.lindaexchange.lindaexchangeadmin;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,6 +40,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +64,9 @@ public class RateDetailFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final int REQUEST_GALLERY_PICTURE = 10;
+    private static final int REQUEST_IMAGE_CAPTURE = 11;
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 12;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -59,10 +79,16 @@ public class RateDetailFragment extends Fragment {
     private EditText countryNameEditText;
     private EditText currencyNameEditText;
     private EditText flagEditText;
+    private ImageView flagImageView;
 
     private ProgressBar mProgressView;
     private View mContentView;
     private FloatingActionButton fab;
+
+    private Bitmap imageBitmap;
+    private boolean imageFromUri = false;
+    private boolean imageFromCamera = false;
+    private Uri imageUri;
 
     private CountDownTimer timer = new CountDownTimer(10000, 10000) {
         @Override
@@ -116,6 +142,14 @@ public class RateDetailFragment extends Fragment {
         flagEditText = (EditText) view.findViewById(R.id.rateFlagEditText);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        flagImageView = (ImageView) view.findViewById(R.id.ratePhotoImageView);
+        Button flagImageButton = (Button) view.findViewById(R.id.ratePhotoButton);
+        flagImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showGallery();
+            }
+        });
 
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
         mContentView = view.findViewById(R.id.content);
@@ -153,7 +187,25 @@ public class RateDetailFragment extends Fragment {
                 if (rateDB != null) {
                     countryNameEditText.setText(rateDB.getCountryname());
                     currencyNameEditText.setText(rateDB.getCurrencyname());
-                    flagEditText.setText(rateDB.getFlag());
+                    String flagRef = rateDB.getFlag();
+                    flagEditText.setText(flagRef);
+                    if (URLUtil.isValidUrl(flagRef)) {
+                        Picasso.with(getContext()).load(flagRef).into(flagImageView);
+                    } else if (!flagRef.equals("")) {
+                        FirebaseStorage.getInstance().getReference(flagRef).getDownloadUrl()
+                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Picasso.with(getContext()).load(uri).into(flagImageView);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+                    }
+
                     rate = rateDB;
                     if (rate.getRate() != null) {
                         recyclerView.setAdapter(new DenominationRecyclerViewAdapter(rate.getRate(), rateIndex, mListener));
@@ -201,15 +253,39 @@ public class RateDetailFragment extends Fragment {
     }
 
     private void saveRate(final boolean isNewRate) {
-        showProgress(true);
         String countryName = countryNameEditText.getText().toString();
         String currencyName = currencyNameEditText.getText().toString();
         String flagUrl = flagEditText.getText().toString();
-        Map<String, Object> map = new HashMap<>();
-        String rateString = getString(R.string.rate);
+        final Map<String, Object> map = new HashMap<>();
+        final String rateString = getString(R.string.rate);
         map.put(rateString + "/" + String.valueOf(rateIndex) + "/countryname", countryName);
         map.put(rateString + "/" + String.valueOf(rateIndex) + "/currencyname", currencyName);
-        map.put(rateString + "/" + String.valueOf(rateIndex) + "/flag", flagUrl);
+        if (imageFromUri) {
+            showProgress(true);
+            String flagString = getString(R.string.rate_flag);
+            String filename = "flag" + String.valueOf(rateIndex) + ".jpg";
+            StorageReference ref = FirebaseStorage.getInstance().getReference(flagString).child(filename);
+            UploadTask uploadTask;
+            uploadTask = ref.putFile(imageUri);
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    showProgress(false);
+                    if (taskSnapshot.getDownloadUrl() != null) {
+                        String ref = taskSnapshot.getDownloadUrl().toString();
+                        map.put(rateString + "/" + String.valueOf(rateIndex) + "/flag", ref);
+                    }
+                    updateMap(map, isNewRate);
+                }
+            });
+        } else {
+            map.put(rateString + "/" + String.valueOf(rateIndex) + "/flag", flagUrl);
+            updateMap(map, isNewRate);
+        }
+    }
+
+    private void updateMap(Map<String, Object> map, final Boolean isNewRate) {
+        showProgress(true);
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference();
         ref.updateChildren(map, new DatabaseReference.CompletionListener() {
@@ -283,7 +359,7 @@ public class RateDetailFragment extends Fragment {
         // TODO: Update argument type and name
 //        void onFragmentInteraction(Uri uri);
         void showDenominationDetail(int rateIndex, int denominationIndex);
-        void deleteDenomination(int rateIndex, int denominationIndex);
+        void deleteDenomination(int rateIndex, int denominationIndex, String denominationName);
     }
 
     private void showProgress(final boolean show) {
@@ -331,5 +407,79 @@ public class RateDetailFragment extends Fragment {
     private void showTimeoutSnackbar() {
         Snackbar snackbar = Snackbar.make(recyclerView, R.string.timeout_string, Snackbar.LENGTH_SHORT);
         snackbar.show();
+    }
+
+    private void startCameraOrGalleryDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Upload picture options");
+        builder.setMessage("How do you want to set your picture?");
+        builder.setPositiveButton("Gallery", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showGallery();
+            }
+        });
+        builder.setNegativeButton("Camera", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dispatchTakePictureIntent();
+            }
+        });
+        builder.show();
+    }
+
+    private void showGallery() {
+        Intent pictureActionIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pictureActionIntent, REQUEST_GALLERY_PICTURE);
+    }
+
+    private void dispatchTakePictureIntent() {
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.CAMERA)) {
+
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+            }
+        } else {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    }
+                }
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Bundle extra = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extra.get("data");
+            flagImageView.setImageBitmap(imageBitmap);
+            this.imageBitmap = imageBitmap;
+            imageFromCamera = true;
+            imageFromUri = false;
+        } else if (requestCode == REQUEST_GALLERY_PICTURE && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                Uri selectedImage = data.getData();
+                flagImageView.setImageURI(selectedImage);
+                imageFromUri = true;
+                imageFromCamera = false;
+                imageUri = selectedImage;
+            }
+        }
     }
 }

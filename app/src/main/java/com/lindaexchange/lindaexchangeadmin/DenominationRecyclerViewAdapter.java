@@ -66,7 +66,7 @@ public class DenominationRecyclerViewAdapter extends RecyclerView.Adapter<Denomi
                 public boolean onLongClick(View v) {
                     int position = getLayoutPosition();
                     if (position >= 0 && position < mValues.size()) {
-                        mListener.deleteDenomination(rateIndex, position);
+                        mListener.deleteDenomination(rateIndex, position, mValues.get(position).getDenominationname());
                     }
                     return true;
                 }

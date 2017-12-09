@@ -225,8 +225,8 @@ public class NewsPagerFragment extends Fragment {
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     thMap.put("photo", ref);
-                    prepareToUploadEnglishImage(enUri, thMap, enMap);
                 }
+                prepareToUploadEnglishImage(enUri, thMap, enMap);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -259,8 +259,8 @@ public class NewsPagerFragment extends Fragment {
                 if (taskSnapshot.getDownloadUrl() != null) {
                     String ref = taskSnapshot.getDownloadUrl().toString();
                     enMap.put("photo", ref);
-                    updateNews(thMap, enMap);
                 }
+                updateNews(thMap, enMap);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

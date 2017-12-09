@@ -18,10 +18,12 @@
     <string name="branch_location">location</string>
     <string name="branch_opening_time">openingtime</string>
     <string name="branch_photo">photo</string>
+    <string name="branch_delete_confirm_format">ต้องการลบสาขา %1$s หรือไม่</string>
 
     <string name="news_topic_label">หัวข้อ</string>
     <string name="news_detail_label">รายละเอียดข่าว</string>
     <string name="news_photo_label">ภาพ</string>
+    <string name="news_delete_confirm_format">ต้องการลบข่าว \"%1$s\" หรือไม่</string>
 
     <string name="rate_country_name_label">ชื่อประเทศ</string>
     <string name="rate_currency_name_label">ชื่อสกุลเงิน</string>
@@ -32,17 +34,24 @@
     <string name="rate_sell_label">อัตราขาย</string>
     <string name="rate_rate_label">ตั้งค่าหน่วยเงิน</string>
     <string name="rate_add_denomination">เพิ่มหน่วยเงิน</string>
+    <string name="rate_photo_add_text">เลือกรูปภาพ</string>
+    <string name="rate_delete_confirm_format">ต้องการลบค่าเงิน %1$s หรือไม่</string>
+    <string name="rate_denomination_delete_confirm_format">ต้องการลบหน่วยเงิน %1$s หรือไม่</string>
 
     <string name="rate">exchangerate</string>
     <string name="news">news</string>
     <string name="rate_rate">rate</string>
     <string name="rate_denominationname">denominationname</string>
+    <string name="rate_flag">flags</string>
 
     <string name="thai">ภาษาไทย</string>
     <string name="english">ภาษาอังกฤษ</string>
 
     <string name="delete_confirm_title">ลบข้อมูล</string>
     <string name="delete_confirm">ต้องการลบข้อมูลนี้หรือไม่</string>
+    <string name="delete_confirm_format">ต้องการลบข้อมูล %1$s หรือไม่</string>
+    <string name="delete_confirm_yes">ใช่</string>
+    <string name="delete_confirm_no">ไม่ใช่</string>
     <string name="finish">สำเร็จ</string>
     <string name="timeout_string">ไม่สามารถเชื่อมต่อกับอินเตอร์เน็ต</string>
     <string name="logout">Log Out</string>

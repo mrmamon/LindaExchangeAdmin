@@ -47,6 +47,9 @@ public class ExchangeRateDB {
     public List<RateValueDB> extractRateValue(int branch) {
         List<RateValueDB> array = new ArrayList<>();
         int denominationIndex = 0;
+        if (rate == null) {
+            return array;
+        }
         for (DenominationDB deno : rate) {
             List<RateDB> rateDBList = deno.getDenominationrate();
             if (rateDBList != null && branch < rateDBList.size()) {

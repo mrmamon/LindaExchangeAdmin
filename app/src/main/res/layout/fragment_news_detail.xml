@@ -97,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:id="@+id/newsPhotoAddButton"
-                    android:text="เลือกรูปภาพ"/>
+                    android:text="@string/rate_photo_add_text"/>
 
             </LinearLayout>
 

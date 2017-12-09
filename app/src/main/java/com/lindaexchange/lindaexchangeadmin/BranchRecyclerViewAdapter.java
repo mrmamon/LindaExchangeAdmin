@@ -68,7 +68,7 @@ public class BranchRecyclerViewAdapter extends RecyclerView.Adapter<BranchRecycl
                 public boolean onLongClick(View v) {
                     if (null != mListener) {
                         int position = getLayoutPosition();
-                        mListener.deleteBranch(position);
+                        mListener.deleteBranch(position, mValues.get(position).get(0).getName());
                     }
                     return true;
                 }

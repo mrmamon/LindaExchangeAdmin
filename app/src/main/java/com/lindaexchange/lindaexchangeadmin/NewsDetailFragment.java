@@ -178,7 +178,7 @@ public class NewsDetailFragment extends Fragment {
                                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        Picasso.with(getContext()).load(imageRef).into(imageView);
+                                        Picasso.with(getContext()).load(uri).into(imageView);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                             @Override
