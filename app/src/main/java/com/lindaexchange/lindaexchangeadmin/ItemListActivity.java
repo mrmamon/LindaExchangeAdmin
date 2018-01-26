@@ -129,7 +129,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                     notifyItemChanged(selectedPos);
                     selectedPos = position;
                     notifyItemChanged(selectedPos);
-                    if (mTwoPane) {
+//                    if (mTwoPane) {
                         if (holder.mItem.id.equals("1")) {
                             RateFragment fragment = new RateFragment();
                             getSupportFragmentManager().beginTransaction()
@@ -159,13 +159,13 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
                                     .replace(R.id.item_detail_container, fragment)
                                     .commit();
                         }
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, ItemDetailActivity.class);
-                        intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-
-                        context.startActivity(intent);
-                    }
+//                    } else {
+//                        Context context = v.getContext();
+//                        Intent intent = new Intent(context, ItemDetailActivity.class);
+//                        intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+//
+//                        context.startActivity(intent);
+//                    }
                 }
             });
 //            holder.mView.setBackgroundResource(R.drawable.button_background);
