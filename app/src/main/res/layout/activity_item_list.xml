@@ -34,20 +34,6 @@
             <include layout="@layout/item_list" />
         </FrameLayout>
 
-        <Button
-            android:id="@+id/logout_button"
-            android:text="@string/logout"
-            android:layout_width="@dimen/item_width"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_background"
-            android:gravity="start"
-            android:layout_marginBottom="16dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="32dp"
-            android:paddingStart="32dp"
-            android:paddingBottom="16dp"
-            android:layout_alignParentBottom="true"/>
-
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +47,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
      */
     private boolean mTwoPane;
     private Button logoutButton;
+    private int replaceLayout = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+        replaceLayout = R.id.frameLayout;
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -77,6 +80,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+            replaceLayout = R.id.item_detail_container;
         }
 
         logoutButton = (Button) findViewById(R.id.logout_button);
@@ -132,31 +136,36 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
 //                    if (mTwoPane) {
                         if (holder.mItem.id.equals("1")) {
                             RateFragment fragment = new RateFragment();
+//                            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.item_detail_container, fragment)
+                                    .replace(replaceLayout, fragment)
                                     .commit();
                         } else if (holder.mItem.id.equals("2")) {
                             RateForEachBranchFragment fragment = new RateForEachBranchFragment();
+                            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.item_detail_container, fragment)
+                                    .replace(replaceLayout, fragment)
                                     .commit();
                         } else if (holder.mItem.id.equals("3")) {
                             NewsFragment fragment = new NewsFragment();
+                            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.item_detail_container, fragment)
+                                    .replace(replaceLayout, fragment)
                                     .commit();
                         } else if (holder.mItem.id.equals("4")) {
                             BranchFragment fragment = new BranchFragment();
+                            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.item_detail_container, fragment)
+                                    .replace(replaceLayout, fragment)
                                     .commit();
                         } else {
                             Bundle arguments = new Bundle();
                             arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
                             ItemDetailFragment fragment = new ItemDetailFragment();
                             fragment.setArguments(arguments);
+                            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.item_detail_container, fragment)
+                                    .replace(replaceLayout, fragment)
                                     .commit();
                         }
 //                    } else {
@@ -233,7 +242,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         BranchPagerFragment fragment = new BranchPagerFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -245,7 +254,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         BranchPagerFragment fragment = new BranchPagerFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -299,7 +308,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         RateDetailFragment fragment = new RateDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -311,7 +320,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         RateDetailFragment fragment = new RateDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -356,7 +365,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         RateValueUpdateFragment fragment = new RateValueUpdateFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -368,7 +377,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         NewsPagerFragment fragment = new NewsPagerFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -380,7 +389,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         NewsPagerFragment fragment = new NewsPagerFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -438,7 +447,7 @@ public class ItemListActivity extends AppCompatActivity implements  BranchFragme
         DenominationDetailFragment fragment = new DenominationDetailFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.item_detail_container, fragment)
+                .replace(replaceLayout, fragment)
                 .addToBackStack(null)
                 .commit();
     }
